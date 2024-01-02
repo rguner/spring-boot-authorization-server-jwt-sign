@@ -52,7 +52,6 @@ public class JwtTokenConfiguration {
     @Value("${security.jwt.key-pair-password}")
     private String privateKeyPassphrase;
 
-    @Bean
     public KeyStore getKeyStore() {
 
         try (FileInputStream keyStoreFileInputStream = new FileInputStream(ResourceUtils.getFile(keyStorePath))) {
@@ -66,36 +65,6 @@ public class JwtTokenConfiguration {
         return null;
     }
 
-    @Bean
-    public RSAPrivateKey getJwtSigningPrivateKey() {
-        try {
-            Key key = getKeyStore().getKey(keyAlias, privateKeyPassphrase.toCharArray());
-            if (key instanceof RSAPrivateKey) {
-                return (RSAPrivateKey) key;
-            }
-        } catch (UnrecoverableKeyException | NoSuchAlgorithmException | KeyStoreException e) {
-            log.error("Unable to load private key from keystore: {}", keyStorePath, e);
-        }
-
-        throw new IllegalArgumentException("Unable to load private key");
-    }
-
-    @Bean
-    public RSAPublicKey getJwtValidationPublicKey() {
-        try {
-            Certificate certificate = getKeyStore().getCertificate(keyAlias);
-            PublicKey publicKey = certificate.getPublicKey();
-
-            if (publicKey instanceof RSAPublicKey) {
-                return (RSAPublicKey) publicKey;
-            }
-        } catch (KeyStoreException e) {
-            log.error("Unable to load private key from keystore: {}", keyStorePath, e);
-        }
-
-        throw new IllegalArgumentException("Unable to load RSA public key");
-    }
-
 
     @Bean
     public JwtDecoder jwtDecoder(JWKSource<SecurityContext> jwkSource) {
@@ -103,7 +72,7 @@ public class JwtTokenConfiguration {
     }
 
     @Bean
-    public JWKSource<SecurityContext> jwkSource() throws NoSuchAlgorithmException {
+    public JWKSource<SecurityContext> jwkSource() {
         RSAKey rsaKey = getRsaKey();
         JWKSet jwkSet = new JWKSet(rsaKey);
 
@@ -114,21 +83,10 @@ public class JwtTokenConfiguration {
         try {
             return RSAKey.load(getKeyStore(), keyAlias, keyStorePassword.toCharArray());
         } catch (JOSEException | KeyStoreException e) {
-            log.error("Unable to load keystore: {}", keyStorePath, e);
+            log.error("Unable to load Rsa key from keystore", e);
         }
 
         return null;
     }
-
-
-    /*
-    private static KeyPair generateRsaKey() throws NoSuchAlgorithmException {
-        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-        keyPairGenerator.initialize(2048);
-
-        return keyPairGenerator.generateKeyPair();
-    }
-
-     */
 
 }
