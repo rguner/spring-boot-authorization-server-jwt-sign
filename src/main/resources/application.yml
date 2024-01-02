@@ -5,3 +5,9 @@ logging:
   level:
     com: DEBUG
 
+security:
+  jwt:
+    key-store: file:D:/ws/haud-authsrv.jks
+    key-store-password: clydeQA
+    key-pair-alias: haud-authsrv
+    key-pair-password: clydeQA
