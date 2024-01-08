@@ -55,7 +55,7 @@ public class JwtTokenConfiguration {
     public KeyStore getKeyStore() {
 
         try (FileInputStream keyStoreFileInputStream = new FileInputStream(ResourceUtils.getFile(keyStorePath))) {
-            KeyStore keyStore = KeyStore.getInstance("JKS");
+            KeyStore keyStore = KeyStore.getInstance("jks");
             keyStore.load(keyStoreFileInputStream, keyStorePassword.toCharArray());
             return keyStore;
         } catch (IOException | CertificateException | NoSuchAlgorithmException | KeyStoreException e) {
